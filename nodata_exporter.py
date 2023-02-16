@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 # encoding:utf-8
 
 from prometheus_api_client import PrometheusConnect, MetricsList
@@ -74,12 +74,12 @@ if __name__ == "__main__":
                 nodata_metric_name_set.add(nodata_metric_name)
                 exec("{} = Gauge('{}', '{}', {})".format(nodata_metric_name,
                      nodata_metric_name, nodata_metric_description, reserved_label_list))
-            # 更新nodata指标列表, 并对新指标赋0
+            set_metric_value(nodata_metric, reserved_label_list, 0)
+            # 更新nodata指标列表
             if nodata_metric not in nodata_metric_list:
                 print("{} add new metric: {}{}".format(datetime.now(),
                       nodata_metric.metric_name, nodata_metric.label_config))
-                nodata_metric_list.append(nodata_metric)
-                set_metric_value(nodata_metric, reserved_label_list, 0)
+                nodata_metric_list.append(nodata_metric)               
 
         # 未再出现的指标赋1
         for nodata_metric in nodata_metric_list:

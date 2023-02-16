@@ -31,7 +31,7 @@
 
 因此，我希望用一种更简单的方法解决指标nodata的告警问题，于是写了这个nodata exporter。
 
-## 开发思路
+## 设计思路
 1、以首次查询的结果初始化一个指标列表，例如：
 ```
 up{cluster="cluster1", job="prometheus"}
@@ -50,21 +50,27 @@ up{cluster="cluster2", job="prometheus"}
 up{cluster="cluster3", job="prometheus"}
 up{cluster="cluster4", job="prometheus"}
 ```
-4、更新指标列表，加入将新出现的指标，得到：
+4、为第3步中所有指标的nodata指标赋值0
+```
+nodata_up{cluster="cluster2", job="prometheus"} 0
+nodata_up{cluster="cluster3", job="prometheus"} 0
+nodata_up{cluster="cluster4", job="prometheus"} 0
+```
+5、更新指标列表，加入将新出现的指标，得到：
 ```
 up{cluster="cluster1", job="prometheus"}
 up{cluster="cluster2", job="prometheus"}
 up{cluster="cluster3", job="prometheus"}
 up{cluster="cluster4", job="prometheus"}
 ```
-5、为新出现指标生成nodata指标，并赋值0；为第4步列表中存在，但第3步列表中不存在的指标对应的nodata指标赋值1，表示该指标无数据：
+6、为第4步列表中存在，但第3步列表中不存在的指标对应的nodata指标赋值1，表示该指标无数据：
 ```
 nodata_up{cluster="cluster1", job="prometheus"} 1
 nodata_up{cluster="cluster2", job="prometheus"} 0
 nodata_up{cluster="cluster3", job="prometheus"} 0
-nodata_up{cluster="cluster3", job="prometheus"} 0
+nodata_up{cluster="cluster4", job="prometheus"} 0
 ```
-6、循环执行步骤3至5，实时更新指标nodata情况。
+7、循环执行步骤3至6，更新指标nodata情况。
 
 ## 使用方法
 ### python3运行：
@@ -97,10 +103,23 @@ python3 nodata_exporter.py -u='http://localhost:9090/' -q='up{job="prometheus"} 
 
 ### docker运行
 ```
-docker run -d -p 9198:9198 zhangrongjie/nodata_exporter:1.0 -u='http://localhost:9090/' -q='up{job="prometheus"}' -r='job,instance'
+docker run -d -p 9198:9198 zhangrongjie/nodata_exporter:1.0 -u='http://*:9090/' -q='up{job="prometheus"}' -r='job,instance'
 ```
 ### kubernetes运行
 可参考install_nodata_exporter.yaml
 ```
 kubectl apply -f install_nodata_exporter.yaml
 ```
+## 告警规则
+```yaml
+- alert: Prometheus离线
+  expr: nodata_up{job="prometheus"} == 1
+  for: 2m
+  labels:
+    severity: critical
+  annotations:
+    summary: "prometheus离线"
+    description: "prometheus节点({{$labels.instance}})离线超过2分钟"
+```
+## 告警清除
+程序不具备清除告警能力，如确认某些指标的nodata为正常情况，需重启exporter。

@@ -1,4 +1,4 @@
-FROM python:3
+FROM python:3.6-slim
 LABEL maintainer="zhangrongjie"
 WORKDIR /usr/src/app
 EXPOSE 9198
