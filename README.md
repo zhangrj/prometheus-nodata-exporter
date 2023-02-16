@@ -103,7 +103,7 @@ python3 nodata_exporter.py -u='http://localhost:9090/' -q='up{job="prometheus"} 
 
 ### docker运行
 ```
-docker run -d -p 9198:9198 zhangrongjie/nodata_exporter:1.0 -u='http://*:9090/' -q='up{job="prometheus"}' -r='job,instance'
+docker run -d -p 9198:9198 registry.cn-hangzhou.aliyuncs.com/zhangrongjie/nodata_exporter:1.0.0 -u='http://*:9090/' -q='up{job="prometheus"}' -r='job,instance'
 ```
 ### kubernetes运行
 可参考install_nodata_exporter.yaml

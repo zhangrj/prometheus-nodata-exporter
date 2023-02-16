@@ -15,7 +15,7 @@ spec:
         app.kubernetes.io/name: nodata-exporter
     spec:
       containers:
-      - image: zhangrongjie/nodata_exporter:1.0
+      - image: registry.cn-hangzhou.aliyuncs.com/zhangrongjie/nodata_exporter:1.0.0
         name: nodata-exporter
         ports:
         - containerPort: 9198
