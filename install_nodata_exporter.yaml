@@ -22,9 +22,9 @@ spec:
           name: metrics
           protocol: TCP
         args:
-        - -u='http://*:9090/'
-        - -q='up{job="prometheus"}'
-        - -r='job,instance'
+        - -u=http://172.21.204.4:30090/
+        - -q=up{job='prometheus-k8s'}
+        - -r=job,instance,az,cluster,project,env
         readinessProbe:
           tcpSocket:
             port: 9198
